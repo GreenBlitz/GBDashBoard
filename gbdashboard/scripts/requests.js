@@ -27,6 +27,7 @@ function post(url, data={}, callback=null, error=null){
 
 function get(url, data=null, callback=null, error=null){
     if(data){
+        url += '?'
         for(key in data){
             url += encodeURIComponent(key) + '=' + encodeURIComponent(data[key])+'&';
         }
