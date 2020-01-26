@@ -19,11 +19,11 @@ def init_network_tables():
     global NETWORK_TABLE_STARTED
 
     if not NETWORK_TABLE_STARTED:
+        NETWORK_TABLE_STARTED = True
         nt.NetworkTables.initialize(ROBORIO_IP)
         print("[DEBUG] Starting network table server...")
         time.sleep(0.5)  # Wait for connection to actually init itself
         print("[DEBUG] Started network table server.")
-        NETWORK_TABLE_STARTED = True
 
 
 def insert_value(html_base: BeautifulSoup, table_name, table_tag, name, value):
