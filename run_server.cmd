@@ -1,1 +1,1 @@
-py gbdashboard/server_master.py
+py -m gbdashboard.server_master
