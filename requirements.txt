@@ -1,3 +1,5 @@
 flask
 gbrpi
 gbvision
+pynetworktables
+bs4
