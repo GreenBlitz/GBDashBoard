@@ -58,7 +58,7 @@ def set_selected_camera(camera: int):
 def do_vision_master():
     global cameras
     cameras.release(foreach=True)
-    subprocess.Popen(['~/vision/do_vision.sh'], stdout=subprocess.PIPE)
+    subprocess.Popen(['/home/pi/vision/do_vision.sh'], stdout=subprocess.PIPE)
 
 
 def change_vision_algorithm(algo):

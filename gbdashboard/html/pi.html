@@ -32,8 +32,10 @@
     function startVisionMaster(){
         get('/start_vision_master')
     }
-    function startGBVisionStream(){
-        get('/start_gbvision_stream')
+    function startGBVisionStream(button){
+        button.disabled = true;
+        let callback = function(){button.disabled = false;}
+        get('/start_gbvision_stream', null, callback, callback);
     }
     function setVisionAlgorithm(algo){
         get('/set_vision_algorithm', {algo: algo})
@@ -91,7 +93,7 @@
     </tr>
     <tr>
         <th>
-            <button type="button" onclick="startGBVisionStream()">Start Median Threshold Stream</button>
+            <button type="button" onclick="startGBVisionStream(this)">Start Python Stream</button>
         </th>
     </tr>
     <tr>
