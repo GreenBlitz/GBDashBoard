@@ -26,11 +26,28 @@ def init_network_tables():
         NETWORK_TABLE_STARTED = True
 
 
-def generate_row():
-    pass
+def insert_value(html_base: BeautifulSoup, table_name, table_tag, name, value):
+    data_tag = html_base.new_tag("tr", id=table_name + "->" + name)
+
+    data_name_tag = html_base.new_tag("th", style=CELL_STYLE)
+    data_name_tag.string = name
+
+    data_value_tag = html_base.new_tag("th", style=CELL_STYLE)
+    text_box_value_tag = html_base.new_tag("textarea", readonly="", style=TEXT_BOX_STYLE)
+    text_box_value_tag.string = str(value)
+    data_value_tag.append(text_box_value_tag)
+
+    option_tag = html_base.new_tag("th", style=CELL_STYLE)
+    option_tag.string = "temp"
+
+    data_tag.append(data_name_tag)
+    data_tag.append(data_value_tag)
+    data_tag.append(option_tag)
+
+    table_tag.append(data_tag)
 
 
-def generate_subtable(html_base, subtable_name, subtable_data):
+def generate_subtable(html_base: BeautifulSoup, subtable_name, subtable_data):
     parent_tag = html_base.new_tag("th")
     subtable_tag = html_base.new_tag("table", style=SUB_TABLE_STYLE, id=subtable_name)
 
@@ -44,26 +61,10 @@ def generate_subtable(html_base, subtable_name, subtable_data):
     subtable_tag.append(title_tag)
 
     for data_point in sorted(subtable_data):
-        data_tag = html_base.new_tag("tr", id=subtable_name + "->" + data_point)
-
-        data_name_tag = html_base.new_tag("th", style=CELL_STYLE)
-        data_name_tag.string = data_point
-
-        data_value_tag = html_base.new_tag("th", style=CELL_STYLE)
-        text_box_value_tag = html_base.new_tag("textarea", readonly="", style=TEXT_BOX_STYLE)
-        text_box_value_tag.string = subtable_data[data_point]
-        data_value_tag.append(text_box_value_tag)
-
-        option_tag = html_base.new_tag("th", style=CELL_STYLE)
-        option_tag.string = "temp"
-
-        data_tag.append(data_name_tag)
-        data_tag.append(data_value_tag)
-        data_tag.append(option_tag)
-
-        subtable_tag.append(data_tag)
+        insert_value(html_base, subtable_name, subtable_tag, data_point, subtable_data[data_point])
 
     parent_tag.append(subtable_tag)
+
     return parent_tag
 
 
@@ -128,3 +129,19 @@ def test_everything():
     data = generate_dashboard("SmartDashboard")
     print(build_html_from_dashboard(data))
 
+
+def test_build_dashboard():
+    data = {
+        "__name": "BruhDashboard",
+        "parent": {
+            "hmmm": 4590
+        },
+        "SubTable1": {
+            "1": 1,
+            "2": 2,
+            "3": 3
+        }, "SubTable2": {
+            "2": "bruh",
+            "3": "moment"
+        }}
+    print(build_html_from_dashboard(data))
