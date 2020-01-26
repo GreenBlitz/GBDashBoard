@@ -8,5 +8,5 @@ def generate_webpage(dashboard):
 
 def build_dashboards(app):
     for dashboard in dashboards:
-        app.add_url_rule("/board/" + dashboard, dashboards, lambda: generate_webpage(dashboard))
+        app.add_url_rule("/board/" + dashboard, dashboard, lambda: generate_webpage(dashboard))
 
