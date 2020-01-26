@@ -1,11 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
+    <script src="scripts/requests.js"></script>
     <meta charset="UTF-8">
     <title>RPi</title>
 </head>
 <body>
-
+<script>
+    function getSelectedCamera(){
+        return parseInt(document.getElementById('camera').value);
+    }
+    function leds(state){
+        get('/set_leds', {state:state});
+    }
+    function exposure(state){
+        get('/set_exposure', {raw:(state?11:10), camera:getSelectedCamera()})
+    }
+    function autoExposure(state){
+        get('/set_auto_exposure', {raw:(state?3:1), camera:getSelectedCamera()})
+    }
+</script>
+<table>
+    <tr>
+        <th>
+            Camera <input type="number" value="0" width="20px" id="camera">
+        </th>
+    </tr>
+    <tr>
+        <th>
+        Led Ring <input type="checkbox" onclick="leds(this.checked)">
+        </th>
+    </tr>
+    <tr>
+        <th>
+            Exposure <input type="checkbox" onclick="exposure(this.checked)"><br>
+        </th>
+    </tr>
+    <tr>
+        <th>
+            Auto Exposure <input type="checkbox" onclick="autoExposure(this.checked)"><br>
+        </th>
+    </tr>
+</table>
 </body>
 </html>
