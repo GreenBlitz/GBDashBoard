@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <style>
+
+        .default{
+            width:100%;
+            border:4px solid green;
+        }
+
+        .inner {
+            width:100%;
+            border:2px solid green;
+        }
+
+        th {
+            vertical-align: top;
+            border: 1px solid #0F0F0F;
+            font-weight: normal;
+        }
+
+    </style>
+
+    <meta charset="UTF-8">
+    <title>DashboardName</title>
+</head>
+<body>
+
+<p style="text-align: center; font-size: 48px; line-height: 2px">
+
+    TableName
+
+</p>
+<p style="text-align: center; font-size: 22px; line-height: 2px">
+
+    Description - the quick brown fox jumped over the lazy dog
+
+</p>
+
+    <table class="default">
+        <tr>
+            <th> Subtable1 </th>
+            <th> Subtable2 </th>
+            <th> Subtable3 </th>
+            <th> Global Options </th>
+        </tr>
+        <tr>
+            <th>
+                <table class="inner" id="Chassis">
+                    <tr>
+                        <th> <b>variableName</b> </th>
+                        <th> <b>variableValue</b> </th>
+                        <th>  </th>
+                    </tr>
+                    <tr id="Chassis->leftSpeed">
+                        <th> leftSpeed </th>
+                        <th> 0.51 </th>
+                        <th> options </th>
+                    </tr>
+                    <tr id="Chassis->rightSpeed">
+                        <th> rightSpeed </th>
+                        <th> 0.19 </th>
+                        <th> options </th>
+                    </tr>
+                    <tr id="Chassis->Shift">
+                        <th> Shift </th>
+                        <th> POWER </th>
+                        <th> options </th>
+                    </tr>
+                </table>
+            </th>
+            <th>
+                <table class="inner">
+                    <tr>
+                        <th> <b>variableName</b> </th>
+                        <th>  <b>variableValue</b> </th>
+                        <th>  </th>
+                    </tr>
+                </table>
+            </th>
+            <th>
+                <table class="inner">
+                    <tr>
+                        <th> <b>variableName</b> </th>
+                        <th>  <b>variableValue</b> </th>
+                        <th>  </th>
+                    </tr>
+                </table>
+            </th>
+            <th>
+                <button style="width: 100%; height: 100px"> Edit Visible </button>
+            </th>
+        </tr>
+    </table>
+
+</body>
+</html>
