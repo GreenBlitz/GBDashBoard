@@ -3,11 +3,28 @@ import cv2
 import gbrpi
 import gbvision as gbv
 import subprocess
+import platform
 
+from gbdashboard.constants.net import STREAM_PORT
 from gbdashboard.constants.ports import LED_RING_PORT
 
 leds = gbrpi.LedRing(LED_RING_PORT)
-cams = gbv.CameraList([gbv.USBCamera(0)])
+
+is_on_rpi = platform.uname()[4].startswith('arm')
+
+CAMERA_AMOUNT = int(subprocess.check_output(['vcgencmd', 'get_camera']).decode('ascii').split()[0].split('=')[
+                        1]) if is_on_rpi else 1
+
+cameras = gbv.CameraList([gbv.AsyncUSBCamera(i) for i in range(CAMERA_AMOUNT)])
+
+conn = gbrpi.TableConn('10.45.90.8', 'vision')
+
+all_thresholds = list(map(lambda x: x.split('=')[0].strip(), filter(lambda x: ord('A') <= ord(x[0]) <= ord('Z'),
+                                                                    open(
+                                                                        '/home/pi/vision/constants/thresholds.py').read().split()))) if is_on_rpi else [
+    'VISION_TARGET',
+    'POWER_CELL']
+
 
 def set_led_state(state):
     if state:
@@ -16,11 +33,11 @@ def set_led_state(state):
         leds.off()
 
 
-def update_cam(port: int):
+def update_cam():
     """Video streaming generator function."""
-    camera = gbv.USBCamera(port)
+    global cameras
     while True:
-        _, frame = camera.read()
+        _, frame = cameras.read()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + cv2.imencode('.jpg', frame)[1].tobytes() + b'\r\n')
 
@@ -31,3 +48,39 @@ def set_exposure_state(raw: int, camera: int):
 
 def set_auto_exposure_state(raw: int, camera: int):
     subprocess.call(['v4l2-ctl', '-d', f'/dev/video{camera}', '-c', f'exposure_auto={raw}'])
+
+
+def set_selected_camera(camera: int):
+    global cameras
+    cameras.select_camera(camera)
+
+
+def do_vision_master():
+    global cameras
+    cameras.release(foreach=True)
+    subprocess.Popen(['~/vision/do_vision.sh'], stdout=subprocess.PIPE)
+
+
+def change_vision_algorithm(algo):
+    global conn
+    conn.set('algorithm', algo)
+
+
+def send_tcp_stream():
+    global cameras
+    try:
+        stream = gbv.TCPStreamBroadcaster(STREAM_PORT)
+        while True:
+            ok, frame = cameras.read()
+            stream.send_frame(frame)
+    except gbv.TCPStreamClosed:
+        return
+
+
+def set_value_in_file(name, code):
+    lines = open('/home/pi/vision/constants/thresholds.py').read().splitlines()
+    for i, line in enumerate(lines.copy()):
+        if line.startswith(name + ' ') or line.startswith(name + '='):
+            lines[i] = f'{name} = {code}'
+
+    open('/home/pi/vision/constants/thresholds.py', 'w').write('\n'.join(lines))

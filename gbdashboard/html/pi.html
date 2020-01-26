@@ -10,8 +10,15 @@
     function getSelectedCamera(){
         return parseInt(document.getElementById('camera').value);
     }
+    function getSelectedThreshold(){
+        let elem = document.getElementById('thresholds');
+        return elem.options[elem.selectedIndex].value;
+    }
+    function getInputThresholdCode(){
+        return document.getElementById('threshold_code').value;
+    }
     function setFeedCamera(){
-        document.getElementById('feed').src = "/video_feed?camera=" + getSelectedCamera();
+        get('/set_feed_camera', {camera: getSelectedCamera()});
     }
     function leds(state){
         get('/set_leds', {state:state});
@@ -22,6 +29,33 @@
     function autoExposure(state){
         get('/set_auto_exposure', {raw:(state?3:1), camera:getSelectedCamera()})
     }
+    function startVisionMaster(){
+        get('/start_vision_master')
+    }
+    function startGBVisionStream(){
+        get('/start_gbvision_stream')
+    }
+    function setVisionAlgorithm(algo){
+        get('/set_vision_algorithm', {algo: algo})
+    }
+    function setThresholdValue(){
+        get('/set_threshold_value', {name: getSelectedThreshold(), code: getInputThresholdCode()});
+    }
+    get('/get_algorithms_list', null, function(response){
+        let lst = JSON.parse(response);
+        let elem = document.getElementById("algorithms");
+        for(var i in lst){
+            elem.innerHTML += '<option value="' + lst[i] + '">' + lst[i] + '</option>';
+        }
+    })
+    get('/get_all_thresholds', null, function(response){
+        let lst = JSON.parse(response);
+        let elem = document.getElementById("thresholds");
+        for(var i in lst){
+            elem.innerHTML += '<option value="' + lst[i] + '">' + lst[i] + '</option>';
+        }
+    })
+
 </script>
 <table>
     <tr>
@@ -31,7 +65,7 @@
     </tr>
     <tr>
         <th>
-        Led Ring <input type="checkbox" onclick="leds(this.checked)">
+            Led Ring <input type="checkbox" onclick="leds(this.checked)">
         </th>
     </tr>
     <tr>
@@ -46,7 +80,29 @@
     </tr>
     <tr>
         <th>
-            <img id="feed" src="/video_feed?camera=0">
+            <button type="button" onclick="startVisionMaster()">Start Vision Master</button>
+        </th>
+    </tr>
+    <tr>
+        <th>
+            Algorithm: <select id="algorithms"
+                               onchange="setVisionAlgorithm(this.options[this.selectedIndex].value)"></select>
+        </th>
+    </tr>
+    <tr>
+        <th>
+            <button type="button" onclick="startGBVisionStream()">Start Median Threshold Stream</button>
+        </th>
+    </tr>
+    <tr>
+        <th>
+            Set Threshold: <select id="thresholds"></select> <input type="text" id="threshold_code">
+            <button onclick="setThresholdValue()">Set!</button>
+        </th>
+    </tr>
+    <tr>
+        <th>
+            <img id="feed" src="/video_feed">
         </th>
     </tr>
 </table>
