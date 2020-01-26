@@ -1,4 +1,3 @@
-from gbdashboard.constants.dashboards import dashboards
 import gbdashboard.dashboard.dashboard_builder as builder
 
 
@@ -7,6 +6,8 @@ def generate_webpage(dashboard):
 
 
 def build_dashboards(app):
-    for dashboard in dashboards:
-        app.add_url_rule("/board/" + dashboard, dashboard, lambda: generate_webpage(dashboard))
+
+    app.add_url_rule("/board/<dashboard>", "/board/", generate_webpage)
+    app.add_url_rule("/board/<name>/update", "/board/update", builder.generate_dashboard)
+
 

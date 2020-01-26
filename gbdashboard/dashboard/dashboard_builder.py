@@ -26,6 +26,47 @@ def init_network_tables():
         NETWORK_TABLE_STARTED = True
 
 
+def generate_row():
+    pass
+
+
+def generate_subtable(html_base, subtable_name, subtable_data):
+    parent_tag = html_base.new_tag("th")
+    subtable_tag = html_base.new_tag("table", style=SUB_TABLE_STYLE, id=subtable_name)
+
+    title_tag = html_base.new_tag("tr")
+    title = BeautifulSoup("<tr> \
+                            <th> <b>Variable Name</b> </th> \
+                            <th> <b>Variable Value</b> </th> \
+                            <th>  </th> \
+                        </tr>")
+    title_tag.append(title)
+    subtable_tag.append(title_tag)
+
+    for data_point in sorted(subtable_data):
+        data_tag = html_base.new_tag("tr", id=subtable_name + "->" + data_point)
+
+        data_name_tag = html_base.new_tag("th", style=CELL_STYLE)
+        data_name_tag.string = data_point
+
+        data_value_tag = html_base.new_tag("th", style=CELL_STYLE)
+        text_box_value_tag = html_base.new_tag("textarea", readonly="", style=TEXT_BOX_STYLE)
+        text_box_value_tag.string = subtable_data[data_point]
+        data_value_tag.append(text_box_value_tag)
+
+        option_tag = html_base.new_tag("th", style=CELL_STYLE)
+        option_tag.string = "temp"
+
+        data_tag.append(data_name_tag)
+        data_tag.append(data_value_tag)
+        data_tag.append(option_tag)
+
+        subtable_tag.append(data_tag)
+
+    parent_tag.append(subtable_tag)
+    return parent_tag
+
+
 def generate_dashboard(name: str):
     init_network_tables()
 
@@ -78,41 +119,7 @@ def build_html_from_dashboard(json_data: Dict):
 
     data = html_base.find(id="subtables")
     for table_name in subtable_names:
-        parent_tag = html_base.new_tag("th")
-        subtable_tag = html_base.new_tag("table", style=SUB_TABLE_STYLE, id=table_name)
-
-        title_tag = html_base.new_tag("tr")
-        title = BeautifulSoup("<tr> \
-                        <th> <b>Variable Name</b> </th> \
-                        <th> <b>Variable Value</b> </th> \
-                        <th>  </th> \
-                    </tr>")
-        title_tag.append(title)
-        subtable_tag.append(title_tag)
-
-        for data_point in sorted(json_data[table_name]):
-
-            data_tag = html_base.new_tag("tr", id=table_name+"->"+data_point)
-
-            data_name_tag = html_base.new_tag("th", style=CELL_STYLE)
-            data_name_tag.string = data_point
-
-            data_value_tag = html_base.new_tag("th", style=CELL_STYLE)
-            text_box_value_tag = html_base.new_tag("textarea", readonly="", style=TEXT_BOX_STYLE)
-            text_box_value_tag.string = json_data[table_name][data_point]
-            data_value_tag.append(text_box_value_tag)
-
-            option_tag = html_base.new_tag("th", style=CELL_STYLE)
-            option_tag.string = "temp"
-
-            data_tag.append(data_name_tag)
-            data_tag.append(data_value_tag)
-            data_tag.append(option_tag)
-
-            subtable_tag.append(data_tag)
-
-        parent_tag.append(subtable_tag)
-        data.insert(0, parent_tag)
+        data.insert(0, generate_subtable(html_base, table_name, json_data[table_name]))
 
     return str(html_base)
 
