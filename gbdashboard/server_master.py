@@ -1,8 +1,8 @@
 import json
-from flask import Flask, request, send_from_directory
+from flask import Flask, request, send_from_directory, Response
 
 from gbdashboard.constants.net import LOCAL_SERVER_IP, SERVER_PORT
-from gbdashboard.tools.pi import set_led_state, set_exposure_state, set_auto_exposure_state
+from gbdashboard.tools.pi import set_led_state, set_exposure_state, set_auto_exposure_state, update_cam
 
 app = Flask(__name__)
 
@@ -43,6 +43,14 @@ def set_auto_exposure():
     camera = json.loads(request.args.get("camera"))
     set_auto_exposure_state(raw, camera)
     return ''
+
+
+@app.route('/video_feed')
+def video_feed():
+    """Video streaming route. Put this in the src attribute of an img tag."""
+    camera = json.loads(request.args.get("camera"))
+    return Response(update_cam(camera),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 if __name__ == '__main__':

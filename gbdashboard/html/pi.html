@@ -10,6 +10,9 @@
     function getSelectedCamera(){
         return parseInt(document.getElementById('camera').value);
     }
+    function setFeedCamera(){
+        document.getElementById('feed').src = "/video_feed?camera=" + getSelectedCamera();
+    }
     function leds(state){
         get('/set_leds', {state:state});
     }
@@ -23,7 +26,7 @@
 <table>
     <tr>
         <th>
-            Camera <input type="number" value="0" width="20px" id="camera">
+            Camera <input type="number" value="0" width="20px" id="camera" onchange="setFeedCamera()">
         </th>
     </tr>
     <tr>
@@ -39,6 +42,11 @@
     <tr>
         <th>
             Auto Exposure <input type="checkbox" onclick="autoExposure(this.checked)"><br>
+        </th>
+    </tr>
+    <tr>
+        <th>
+            <img id="feed" src="/video_feed?camera=0">
         </th>
     </tr>
 </table>

@@ -1,3 +1,5 @@
 flask
 gbrpi
 gbvision
+opencv-python
+opencv-contrib-python
