@@ -1,3 +1,5 @@
+import signal
+
 import cv2
 
 import gbrpi
@@ -22,6 +24,8 @@ all_thresholds = list(map(lambda x: x.split('=')[0].strip(), filter(lambda x: or
     'POWER_CELL']
 
 vision_master_process = None
+
+python_stream_running = False
 
 
 def set_led_state(state):
@@ -60,7 +64,7 @@ def do_vision_master():
 def close_vision_master_proc():
     global vision_master_process
     if vision_master_process is not None:
-        vision_master_process.kill()
+        os.killpg(os.getpgid(vision_master_process.pid), signal.SIGINT)
         vision_master_process = None
 
 
@@ -70,14 +74,18 @@ def change_vision_algorithm(algo):
 
 
 def send_tcp_stream(port: int):
-    camera = gbv.USBCamera(port)
-    try:
-        stream = gbv.TCPStreamBroadcaster(STREAM_PORT)
-        while True:
-            ok, frame = camera.read()
-            stream.send_frame(frame)
-    except gbv.TCPStreamClosed:
-        return
+    global python_stream_running
+    if not python_stream_running:
+        python_stream_running = True
+        camera = gbv.USBCamera(port)
+        try:
+            stream = gbv.TCPStreamBroadcaster(STREAM_PORT)
+            while True:
+                ok, frame = camera.read()
+                stream.send_frame(frame)
+        except gbv.TCPStreamClosed:
+            camera.release()
+            python_stream_running = False
 
 
 def set_value_in_file(name, code):
@@ -87,3 +95,43 @@ def set_value_in_file(name, code):
             lines[i] = f'{name} = {code}'
 
     open('/home/pi/vision/constants/thresholds.py', 'w').write('\n'.join(lines))
+
+
+def led_ring_state_getter():
+    global leds
+    return leds.get_power() != 0
+
+
+def vision_master_state_getter():
+    global vision_master_process
+    return vision_master_process is not None
+
+
+def exposure_state_getter(camera):
+    return int(
+        subprocess.check_output(['v4l2-ctl', '-d', f'/dev/video{camera}', '-C', f'exposure_absolute']).decode(
+            'ascii').split(': ')[1]) == 11
+
+
+def auto_exposure_state_getter(camera):
+    return int(
+        subprocess.check_output(['v4l2-ctl', '-d', f'/dev/video{camera}', '-C', f'exposure_auto']).decode(
+            'ascii').split(': ')[1]) == 3
+
+
+def vision_master_debug_mode_state_getter():
+    base_algorithm_file = '/home/pi/vision/algorithms/base_algorithm.py'
+    lines = open(base_algorithm_file).read().splitlines()
+    for i, line in enumerate(lines.copy()):
+        if 'DEBUG = ' in line:
+            return 'True' in line
+
+
+def algorithm_state_getter():
+    global conn
+    return conn.get('algorithm', '')
+
+
+def python_stream_state_getter():
+    global python_stream_running
+    return python_stream_running

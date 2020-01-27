@@ -5,7 +5,9 @@ from gbdashboard.constants.net import LOCAL_SERVER_IP, SERVER_PORT
 from gbdashboard.constants.vision_algorithms import vision_algorithms
 from gbdashboard.tools.pi import set_led_state, set_exposure_state, set_auto_exposure_state, do_vision_master, \
     change_vision_algorithm, all_thresholds, send_tcp_stream, set_value_in_file, \
-    set_vision_master_debug_mode, close_vision_master_proc
+    set_vision_master_debug_mode, close_vision_master_proc, led_ring_state_getter, exposure_state_getter, \
+    auto_exposure_state_getter, vision_master_debug_mode_state_getter, vision_master_state_getter, \
+    algorithm_state_getter, python_stream_state_getter
 
 app = Flask(__name__)
 
@@ -97,6 +99,43 @@ def set_threshold_value():
     code = request.args.get("code")
     set_value_in_file(name, code)
     return ''
+
+
+@app.route('/get_led_ring_state')
+def get_led_ring_state():
+    return json.dumps(led_ring_state_getter())
+
+
+@app.route('/get_exposure_state')
+def get_exposure_state():
+    camera = json.loads(request.args.get("camera"))
+    return json.dumps(exposure_state_getter(camera))
+
+
+@app.route('/get_auto_exposure_state')
+def get_auto_exposure_state():
+    camera = json.loads(request.args.get("camera"))
+    return json.dumps(auto_exposure_state_getter(camera))
+
+
+@app.route('/get_vision_master_debug_mode_state')
+def get_vision_master_debug_mode_state():
+    return json.dumps(vision_master_debug_mode_state_getter())
+
+
+@app.route('/get_vision_master_process_state')
+def get_vision_master_process_state():
+    return json.dumps(vision_master_state_getter())
+
+
+@app.route('/get_current_algorithm')
+def get_current_algorithm():
+    return algorithm_state_getter()
+
+
+@app.route('/get_python_stream_state')
+def get_python_stream_state():
+    return json.dumps(python_stream_state_getter())
 
 
 if __name__ == '__main__':

@@ -36,3 +36,17 @@ function get(url, data=null, callback=null, error=null){
     xhr.send();
     return xhr;
 }
+
+function repeat(url, data=null, callback=null, error=null, timeout=2000, method=get){
+    function _repeat(){
+        let _data;
+        if(typeof data == 'function'){
+            _data = data();
+        }
+        else{
+            _data = data;
+        }
+        method(url, _data, callback, error);
+    }
+    setInterval(_repeat, timeout);
+}

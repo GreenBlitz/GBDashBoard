@@ -14,27 +14,33 @@
     </tr>
     <tr>
         <th>
-            Led Ring <input type="checkbox" onclick="leds(this.checked)">
+            Led Ring <input id="leds" type="checkbox" onclick="leds(this.checked)">
         </th>
     </tr>
     <tr>
         <th>
-            Exposure <input type="checkbox" onclick="exposure(this.checked)"><br>
+            Exposure <input id="exposure" type="checkbox" onclick="exposure(this.checked)"><br>
         </th>
     </tr>
     <tr>
         <th>
-            Auto Exposure <input type="checkbox" onclick="autoExposure(this.checked)"><br>
+            Auto Exposure <input id="auto_exposure" type="checkbox" onclick="autoExposure(this.checked)"><br>
         </th>
     </tr>
     <tr>
         <th>
-            Vision Master Debug Mode <input type="checkbox" onclick="debugMode(this.checked)"><br>
+            Vision Master Debug Mode <input id="vision_master_debug" type="checkbox"
+                                            onclick="debugMode(this.checked)"><br>
         </th>
     </tr>
     <tr>
         <th>
-            <button type="button" onclick="startVisionMaster(this, this.parentElement.children[1])">Start Vision Master</button><button type="button" onclick="stopVisionMaster(this, this.parentElement.children[0])" disabled>Stop Vision Master</button>
+            <button id="vision_master_start" type="button"
+                    onclick="startVisionMaster(this, this.parentElement.children[1])">Start Vision Master
+            </button>
+            <button id="vision_master_stop" type="button"
+                    onclick="stopVisionMaster(this, this.parentElement.children[0])" disabled>Stop Vision Master
+            </button>
         </th>
     </tr>
     <tr>
@@ -45,7 +51,7 @@
     </tr>
     <tr>
         <th>
-            <button type="button" onclick="startGBVisionStream(this)">Start Python Stream</button>
+            <button type="button" id="python_stream" onclick="startGBVisionStream(this)">Start Python Stream</button>
         </th>
     </tr>
     <tr>
