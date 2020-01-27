@@ -33,6 +33,17 @@ def set_led_state(state):
         leds.off()
 
 
+def set_vision_master_debug_mode(state):
+    base_algorithm_file = '/home/pi/vision/algorithms/base_algorithm.py'
+    lines = open(base_algorithm_file).read().splitlines()
+    for i, line in enumerate(lines.copy()):
+        if 'DEBUG = ' in line:
+            lines[i] = lines[i].replace('DEBUG = True', f'DEBUG = {state}').replace('DEBUG = False', f'DEBUG = {state}')
+            break
+    open(base_algorithm_file, 'w').write('\n'.join(lines))
+
+
+
 def update_cam():
     """Video streaming generator function."""
     global cameras

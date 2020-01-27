@@ -4,7 +4,8 @@ from flask import Flask, request, send_from_directory, Response
 from gbdashboard.constants.net import LOCAL_SERVER_IP, SERVER_PORT
 from gbdashboard.constants.vision_algorithms import vision_algorithms
 from gbdashboard.tools.pi import set_led_state, set_exposure_state, set_auto_exposure_state, update_cam, \
-    set_selected_camera, do_vision_master, change_vision_algorithm, all_thresholds, send_tcp_stream, set_value_in_file
+    set_selected_camera, do_vision_master, change_vision_algorithm, all_thresholds, send_tcp_stream, set_value_in_file, \
+    set_vision_master_debug_mode
 
 app = Flask(__name__)
 
@@ -28,6 +29,13 @@ def pi():
 def set_leds():
     state = json.loads(request.args.get("state"))
     set_led_state(state)
+    return ''
+
+
+@app.route('/set_debug_mode')
+def set_debug_mode():
+    state = json.loads(request.args.get("state"))
+    set_vision_master_debug_mode(state)
     return ''
 
 
