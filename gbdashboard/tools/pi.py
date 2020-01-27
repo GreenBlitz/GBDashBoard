@@ -15,7 +15,13 @@ is_on_rpi = platform.uname()[4].startswith('arm')
 CAMERA_AMOUNT = int(subprocess.check_output(['vcgencmd', 'get_camera']).decode('ascii').split()[0].split('=')[
                         1]) if is_on_rpi else 1
 
-cameras = gbv.CameraList([gbv.AsyncUSBCamera(i) for i in range(CAMERA_AMOUNT)])
+cameras = None
+
+def set_cameras():
+    global cameras
+    cameras = gbv.CameraList([gbv.AsyncUSBCamera(i) for i in range(CAMERA_AMOUNT)])
+
+set_cameras()
 
 conn = gbrpi.TableConn('10.45.90.8', 'vision')
 
@@ -24,6 +30,8 @@ all_thresholds = list(map(lambda x: x.split('=')[0].strip(), filter(lambda x: or
                                                                         '/home/pi/vision/constants/thresholds.py').read().split()))) if is_on_rpi else [
     'VISION_TARGET',
     'POWER_CELL']
+
+vision_master_process = None
 
 
 def set_led_state(state):
@@ -43,22 +51,24 @@ def set_vision_master_debug_mode(state):
     open(base_algorithm_file, 'w').write('\n'.join(lines))
 
 
-
 def update_cam():
     """Video streaming generator function."""
     global cameras
     while True:
-        _, frame = cameras.read()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + cv2.imencode('.jpg', frame)[1].tobytes() + b'\r\n')
+        if cameras.is_opened():
+            _, frame = cameras.read()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + cv2.imencode('.jpg', frame)[1].tobytes() + b'\r\n')
 
 
-def set_exposure_state(raw: int, camera: int):
-    subprocess.call(['v4l2-ctl', '-d', f'/dev/video{camera}', '-c', f'exposure_absolute={raw}'])
+def set_exposure_state(raw: int):
+    global cameras
+    cameras.set_exposure(raw)
 
 
-def set_auto_exposure_state(raw: int, camera: int):
-    subprocess.call(['v4l2-ctl', '-d', f'/dev/video{camera}', '-c', f'exposure_auto={raw}'])
+def set_auto_exposure_state(raw: int):
+    global cameras
+    cameras.set_auto_exposure(raw)
 
 
 def set_selected_camera(camera: int):
@@ -68,8 +78,17 @@ def set_selected_camera(camera: int):
 
 def do_vision_master():
     global cameras
+    global vision_master_process
     cameras.release(foreach=True)
-    subprocess.Popen(['/home/pi/vision/do_vision.sh'], stdout=subprocess.PIPE)
+    vision_master_process = subprocess.Popen(['/home/pi/vision/do_vision.sh'], stdout=subprocess.PIPE)
+
+
+def close_vision_master_proc():
+    global vision_master_process
+    if vision_master_process is not None:
+        vision_master_process.kill()
+        vision_master_process = None
+    set_cameras()
 
 
 def change_vision_algorithm(algo):

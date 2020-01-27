@@ -5,7 +5,7 @@ from gbdashboard.constants.net import LOCAL_SERVER_IP, SERVER_PORT
 from gbdashboard.constants.vision_algorithms import vision_algorithms
 from gbdashboard.tools.pi import set_led_state, set_exposure_state, set_auto_exposure_state, update_cam, \
     set_selected_camera, do_vision_master, change_vision_algorithm, all_thresholds, send_tcp_stream, set_value_in_file, \
-    set_vision_master_debug_mode
+    set_vision_master_debug_mode, close_vision_master_proc
 
 app = Flask(__name__)
 
@@ -42,16 +42,14 @@ def set_debug_mode():
 @app.route('/set_exposure')
 def set_exposure():
     raw = json.loads(request.args.get("raw"))
-    camera = json.loads(request.args.get("camera"))
-    set_exposure_state(raw, camera)
+    set_exposure_state(raw)
     return ''
 
 
 @app.route('/set_auto_exposure')
 def set_auto_exposure():
     raw = json.loads(request.args.get("raw"))
-    camera = json.loads(request.args.get("camera"))
-    set_auto_exposure_state(raw, camera)
+    set_auto_exposure_state(raw)
     return ''
 
 
@@ -72,6 +70,12 @@ def set_feed_camera():
 @app.route('/start_vision_master')
 def start_vision_master():
     do_vision_master()
+    return ''
+
+
+@app.route('/stop_vision_master')
+def stop_vision_master():
+    close_vision_master_proc()
     return ''
 
 

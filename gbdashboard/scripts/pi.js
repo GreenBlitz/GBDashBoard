@@ -18,13 +18,20 @@ function debugMode(state){
     get('/set_debug_mode', {state:state});
 }
 function exposure(state){
-    get('/set_exposure', {raw:(state?11:10), camera:getSelectedCamera()})
+    get('/set_exposure', {raw:(state?11:10)})
 }
 function autoExposure(state){
-    get('/set_auto_exposure', {raw:(state?3:1), camera:getSelectedCamera()})
+    get('/set_auto_exposure', {raw:(state?3:1)})
 }
-function startVisionMaster(){
+function startVisionMaster(button1, button2){
+    button1.disabled = true;
+    button2.disabled = false;
     get('/start_vision_master')
+}
+function stopVisionMaster(button1, button2){
+    button1.disabled = true;
+    button2.disabled = false;
+    get('/stop_vision_master')
 }
 function startGBVisionStream(button){
     button.disabled = true;
