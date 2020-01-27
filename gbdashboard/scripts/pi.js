@@ -33,7 +33,7 @@ function stopVisionMaster(button1, button2){
 function startGBVisionStream(button){
     button.disabled = true;
     let callback = function(){button.disabled = false;}
-    get('/start_gbvision_stream', null, callback, callback);
+    get('/start_gbvision_stream', {camera: getSelectedCamera()}, callback, callback);
 }
 function setVisionAlgorithm(algo){
     get('/set_vision_algorithm', {algo: algo})

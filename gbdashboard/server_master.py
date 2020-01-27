@@ -86,7 +86,8 @@ def get_all_thresholds():
 
 @app.route('/start_gbvision_stream')
 def start_gbvision_stream():
-    send_tcp_stream()
+    camera = json.loads(request.args.get("camera"))
+    send_tcp_stream(camera)
     return ''
 
 

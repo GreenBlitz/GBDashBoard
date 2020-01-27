@@ -50,9 +50,7 @@ def set_auto_exposure_state(raw: int, camera: int):
 
 
 def do_vision_master():
-    global cameras
     global vision_master_process
-    cameras.release(foreach=True)
     open('/home/pi/vision/do_vision.sh', 'w').write(
         '#!/bin/bash\nsource /home/pi/bash_config\ncd /home/pi/vision\npy vision_master.py')
     os.chmod('/home/pi/vision/do_vision.sh', 0o0777)
@@ -71,12 +69,12 @@ def change_vision_algorithm(algo):
     conn.set('algorithm', algo)
 
 
-def send_tcp_stream():
-    global cameras
+def send_tcp_stream(port: int):
+    camera = gbv.USBCamera(port)
     try:
         stream = gbv.TCPStreamBroadcaster(STREAM_PORT)
         while True:
-            ok, frame = cameras.read()
+            ok, frame = camera.read()
             stream.send_frame(frame)
     except gbv.TCPStreamClosed:
         return
