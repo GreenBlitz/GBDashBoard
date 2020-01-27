@@ -8,9 +8,6 @@ function getSelectedThreshold(){
 function getInputThresholdCode(){
     return document.getElementById('threshold_code').value;
 }
-function setFeedCamera(){
-    get('/set_feed_camera', {camera: getSelectedCamera()});
-}
 function leds(state){
     get('/set_leds', {state:state});
 }
@@ -18,10 +15,10 @@ function debugMode(state){
     get('/set_debug_mode', {state:state});
 }
 function exposure(state){
-    get('/set_exposure', {raw:(state?11:10)})
+    get('/set_exposure', {raw:(state?11:10), camera: getSelectedCamera()})
 }
 function autoExposure(state){
-    get('/set_auto_exposure', {raw:(state?3:1)})
+    get('/set_auto_exposure', {raw:(state?3:1), camera: getSelectedCamera()})
 }
 function startVisionMaster(button1, button2){
     button1.disabled = true;

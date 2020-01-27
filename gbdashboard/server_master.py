@@ -3,8 +3,8 @@ from flask import Flask, request, send_from_directory, Response
 
 from gbdashboard.constants.net import LOCAL_SERVER_IP, SERVER_PORT
 from gbdashboard.constants.vision_algorithms import vision_algorithms
-from gbdashboard.tools.pi import set_led_state, set_exposure_state, set_auto_exposure_state, update_cam, \
-    set_selected_camera, do_vision_master, change_vision_algorithm, all_thresholds, send_tcp_stream, set_value_in_file, \
+from gbdashboard.tools.pi import set_led_state, set_exposure_state, set_auto_exposure_state, do_vision_master, \
+    change_vision_algorithm, all_thresholds, send_tcp_stream, set_value_in_file, \
     set_vision_master_debug_mode, close_vision_master_proc
 
 app = Flask(__name__)
@@ -42,28 +42,16 @@ def set_debug_mode():
 @app.route('/set_exposure')
 def set_exposure():
     raw = json.loads(request.args.get("raw"))
-    set_exposure_state(raw)
+    camera = json.loads(request.args.get("camera"))
+    set_exposure_state(raw, camera)
     return ''
 
 
 @app.route('/set_auto_exposure')
 def set_auto_exposure():
     raw = json.loads(request.args.get("raw"))
-    set_auto_exposure_state(raw)
-    return ''
-
-
-@app.route('/video_feed')
-def video_feed():
-    """Video streaming route. Put this in the src attribute of an img tag."""
-    return Response(update_cam(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
-
-
-@app.route('/set_feed_camera')
-def set_feed_camera():
     camera = json.loads(request.args.get("camera"))
-    set_selected_camera(camera)
+    set_auto_exposure_state(raw, camera)
     return ''
 
 
