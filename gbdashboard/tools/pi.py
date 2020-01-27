@@ -4,6 +4,7 @@ import gbrpi
 import gbvision as gbv
 import subprocess
 import platform
+import os
 
 from gbdashboard.constants.net import STREAM_PORT
 from gbdashboard.constants.ports import LED_RING_PORT
@@ -17,13 +18,15 @@ CAMERA_AMOUNT = int(subprocess.check_output(['vcgencmd', 'get_camera']).decode('
 
 cameras = None
 
+
 def set_cameras():
     global cameras
     cameras = gbv.CameraList([gbv.AsyncUSBCamera(i) for i in range(CAMERA_AMOUNT)])
 
+
 set_cameras()
 
-conn = gbrpi.TableConn('10.45.90.8', 'vision')
+conn = gbrpi.TableConn('10.45.90.2', 'vision')
 
 all_thresholds = list(map(lambda x: x.split('=')[0].strip(), filter(lambda x: ord('A') <= ord(x[0]) <= ord('Z'),
                                                                     open(
@@ -56,9 +59,13 @@ def update_cam():
     global cameras
     while True:
         if cameras.is_opened():
-            _, frame = cameras.read()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + cv2.imencode('.jpg', frame)[1].tobytes() + b'\r\n')
+            try:
+                _, frame = cameras.read()
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + cv2.imencode('.jpg', frame)[1].tobytes() + b'\r\n')
+            except:
+                import traceback
+                traceback.print_exc()
 
 
 def set_exposure_state(raw: int):
@@ -80,6 +87,9 @@ def do_vision_master():
     global cameras
     global vision_master_process
     cameras.release(foreach=True)
+    open('/home/pi/vision/do_vision.sh', 'w').write(
+        '#!/bin/bash\nsource /home/pi/bash_config\ncd /home/pi/vision\npy vision_master.py')
+    os.chmod('/home/pi/vision/do_vision.sh', 0o0777)
     vision_master_process = subprocess.Popen(['/home/pi/vision/do_vision.sh'], stdout=subprocess.PIPE)
 
 
