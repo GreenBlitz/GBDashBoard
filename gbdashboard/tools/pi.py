@@ -9,7 +9,7 @@ import os
 
 from flask import Flask, request, send_from_directory
 
-from gbdashboard.constants.net import STREAM_PORT
+from gbdashboard.constants.net import STREAM_PORT, ROBORIO_IP
 from gbdashboard.constants.ports import LED_RING_PORT
 from gbdashboard.constants.vision_algorithms import vision_algorithms
 
@@ -17,7 +17,7 @@ leds = gbrpi.LedRing(LED_RING_PORT)
 
 is_on_rpi = platform.uname()[4].startswith('arm')
 
-conn = gbrpi.TableConn('10.45.90.2', 'vision')
+conn = gbrpi.TableConn(ROBORIO_IP, 'vision')
 
 all_thresholds = list(map(lambda x: x.split('=')[0].strip(), filter(lambda x: ord('A') <= ord(x[0]) <= ord('Z'),
                                                                     open(
