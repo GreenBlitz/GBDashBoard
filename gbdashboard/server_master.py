@@ -1,8 +1,6 @@
-import json
-from flask import Flask, request, send_from_directory, Response
+from flask import Flask, send_from_directory
 
 from gbdashboard.constants.net import LOCAL_SERVER_IP, SERVER_PORT
-from gbdashboard.constants.vision_algorithms import vision_algorithms
 from gbdashboard.tools.pi import route_pi
 
 app = Flask(__name__)
