@@ -21,5 +21,4 @@ def send_js(path):
 route_pi(app)
 
 if __name__ == '__main__':
-    build_dashboards(app)
     app.run(host=LOCAL_SERVER_IP, port=SERVER_PORT)
