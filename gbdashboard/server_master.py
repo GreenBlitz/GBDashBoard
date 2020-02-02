@@ -7,8 +7,9 @@ from flask import Flask, request, send_from_directory
 from gbdashboard.constants.net import LOCAL_SERVER_IP, SERVER_PORT, DASHBOARDS
 from gbdashboard.dashboard.dashboard_webpage_builder import build_dashboards
 from gbdashboard.dashboard.dashboard_builder import generate_dashboard
+from gbdashboard.tools.generic import reroute
 from gbdashboard.tools.pi import set_led_state, set_exposure_state, set_auto_exposure_state
-from gbdashboard.dashboard.database.Database import Database
+from gbdashboard.dashboard.database import Database
 import gbdashboard.dashboard.dashboard_builder as db
 
 app = Flask(__name__)
@@ -36,6 +37,18 @@ def set_leds():
     return ''
 
 
+@app.route('/db/<path:path>')
+def send_db(path: str):
+    if path.endswith('.db'):
+        return send_from_directory('db', path)
+    return reroute(f"/db/{path}.db")
+
+
+@app.route('/db/current')
+def send_current_db():
+    return reroute(f"/db/{Database.load_config().get('latest_id')}.db")
+
+
 @app.route('/set_exposure')
 def set_exposure():
     raw = json.loads(request.args.get("raw"))
@@ -50,6 +63,11 @@ def set_auto_exposure():
     camera = json.loads(request.args.get("camera"))
     set_auto_exposure_state(raw, camera)
     return ''
+
+
+@app.route('/graph/<dashboard:dashboard>/<subtable:subtable>/<value:value>/tStart=<starttime:starttime>,tEnd=<endtime:endtime>')
+def graph(dashboard, subtable, value, starttime, endtime):
+    pass
 
 
 def threaded_update_database():
