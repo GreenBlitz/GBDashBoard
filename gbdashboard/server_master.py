@@ -65,11 +65,6 @@ def set_auto_exposure():
     return ''
 
 
-@app.route('/graph/<dashboard:dashboard>/<subtable:subtable>/<value:value>/tStart=<starttime:starttime>,tEnd=<endtime:endtime>')
-def graph(dashboard, subtable, value, starttime, endtime):
-    pass
-
-
 def threaded_update_database():
     database = Database(int(Database.load_config().get("latest_id")), DASHBOARDS)
     for i in DASHBOARDS:

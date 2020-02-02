@@ -30,6 +30,9 @@ class Database:
         INSERT into dashname(param, time, value)
         VALUES(?,?,?)
     """
+    GET_VALUE = """
+        SELECT * FROM __1 WHERE param = \"__2\"
+    """
 
     @staticmethod
     def generate_dashboard_query(dashboard):
@@ -38,6 +41,10 @@ class Database:
     @staticmethod
     def generate_value_query(dashboard):
         return Database.ADD_VALUE.replace("dashname", dashboard)
+
+    @staticmethod
+    def generate_get_query(dashboard, subtale, key):
+        return Database.GET_VALUE.replace("__1", dashboard).replace("__2", subtale + "->" + key)
 
     @staticmethod
     def get_database_dir():
@@ -64,6 +71,15 @@ class Database:
             c.execute(Database.generate_value_query(board), (key, time, value))
         except sqlite3.Error as e:
             print(e)
+
+    def get_parameter_timeline(self, table, subtable, key):
+        c = self.database.cursor()
+        try:
+            c.execute(Database.generate_get_query(table, subtable, key))
+        except sqlite3.Error as e:
+            print(e)
+            return []
+        return c.fetchall()
 
     def flush(self):
         self.database.commit()
