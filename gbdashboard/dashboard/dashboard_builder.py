@@ -144,4 +144,5 @@ def test_build_dashboard():
             "2": "bruh",
             "3": "moment"
         }}
-    print(build_html_from_dashboard(data))
+    #print(build_html_from_dashboard(data))
+    return data

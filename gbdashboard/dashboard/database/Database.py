@@ -2,7 +2,6 @@ import os
 import json
 import sqlite3
 import time
-from gbdashboard import dashboard
 from gbdashboard.dashboard import dashboard_builder
 
 
@@ -22,7 +21,7 @@ class Database:
     DATABASE_DIRECTORY = "/gbdashboard/db/"
     ADD_TABLE = """
         CREATE TABLE IF NOT EXISTS dashname (
-            param text PRIMARY KEY,
+            param text,
             time integer NOT NULL,
             value text
         );
@@ -72,17 +71,15 @@ class Database:
     '''
     The data here is as in generate_dashboard
     '''
-    def update_database(self, data: dict):
+
+    def update_database(self, data):
         keys = data.keys()
-        self.add_table(data.get("__name"))
+        name = data.get("__name")
+        data.pop("__name")
+        self.add_table(name)
         for i in keys:
-            subkeys = data.get(i).keys
+            subkeys = data.get(i).keys()
             for i2 in subkeys:
-                self.insert_value(data.get("__name"), i + "->" + i2, data.get(i).get(i2), time.time()*1000)
-def main():
-    database = Database(2, "BruhDashboard")
-    database.update_database(dashboard_builder.test_build_dashboard())
+                self.insert_value(name, i + "->" + i2, data.get(i).get(i2), int(time.time() * 1000))
+        data["__name"] = name
 
-if __name__ == '__main__':
-
-    main()
