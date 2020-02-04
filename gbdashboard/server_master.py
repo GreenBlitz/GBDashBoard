@@ -66,17 +66,19 @@ def set_auto_exposure():
 
 
 def threaded_update_database():
+    jsondata = {"latest_id": (Database.load_config().get("latest_id") + 1),
+                "default_delay": Database.load_config().get("default_delay")}
+
+    with open(Database.get_database_dir() + "config.json", "w") as f:
+        json.dump(jsondata, f)
+
     database = Database(int(Database.load_config().get("latest_id")), DASHBOARDS)
     for i in DASHBOARDS:
         database.update_database(db.generate_dashboard(i))
 
     sleep_time = Database.load_config().get("default_delay") / 1000.0
 
-    jsondata = {"latest_id": (Database.load_config().get("latest_id") + 1),
-                "default_delay": sleep_time}
 
-    with open(Database.get_database_dir() + "config.json", "w") as f:
-        json.dump(jsondata, f)
 
     while True:
         database.flush()
