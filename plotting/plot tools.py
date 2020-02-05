@@ -20,8 +20,9 @@ def plot_db(dashboard, subtable, value, start_time, end_time):
     for i in target_data:
         time_values.append(i[1])
         values.append(i[2])
+    time_zero = time_values[0]
     for i in range(len(time_values)):
-        time_values[i] -= time_values[0]
+        time_values[i] -= time_zero
         values[i] = float(values[i])
     plt.plot(time_values, values)
     plt.ylabel(value)
