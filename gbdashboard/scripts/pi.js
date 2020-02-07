@@ -55,23 +55,23 @@ get('/pi/get_all_thresholds', null, function(response){
         elem.innerHTML += '<option value="' + lst[i] + '">' + lst[i] + '</option>';
     }
 })
-repeat('/pi/get_led_ring_state', null, function(state){
+repeatWaitResponse('/pi/get_led_ring_state', null, function(state){
     document.getElementById('leds').checked = JSON.parse(state);
 })
-repeat('/pi/get_exposure_state', function(){return {camera: getSelectedCamera()}}, function(state){
+repeatWaitResponse('/pi/get_exposure_state', function(){return {camera: getSelectedCamera()}}, function(state){
     document.getElementById('exposure').checked = JSON.parse(state);
 })
-repeat('/pi/get_auto_exposure_state', function(){return {camera: getSelectedCamera()}}, function(state){
+repeatWaitResponse('/pi/get_auto_exposure_state', function(){return {camera: getSelectedCamera()}}, function(state){
     document.getElementById('auto_exposure').checked = JSON.parse(state);
 })
-repeat('/pi/get_vision_master_debug_mode_state', null, function(state){
+repeatWaitResponse('/pi/get_vision_master_debug_mode_state', null, function(state){
     document.getElementById('vision_master_debug').checked = JSON.parse(state);
 })
-repeat('/pi/get_vision_master_process_state', null, function(state){
+repeatWaitResponse('/pi/get_vision_master_process_state', null, function(state){
     document.getElementById('vision_master_start').disabled = JSON.parse(state);
     document.getElementById('vision_master_stop').disabled = !JSON.parse(state);
 })
-repeat('/pi/get_current_algorithm', null, function(state){
+repeatWaitResponse('/pi/get_current_algorithm', null, function(state){
     let elem = document.getElementById('algorithms')
     let index = 0;
     for(var i in elem.children){
@@ -82,6 +82,6 @@ repeat('/pi/get_current_algorithm', null, function(state){
     }
     elem.selectedIndex = parseInt(index);
 })
-repeat('/pi/get_python_stream_state', null, function(state){
+repeatWaitResponse('/pi/get_python_stream_state', null, function(state){
     document.getElementById('python_stream').disabled = JSON.parse(state);
 })
