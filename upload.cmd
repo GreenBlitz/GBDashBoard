@@ -1,1 +1,1 @@
-scp -r %cd% pi@frcvision.local:~/server
+scp -r "%cd%" pi@frcvision.local:~/server
