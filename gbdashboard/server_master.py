@@ -1,9 +1,7 @@
-import json
-from flask import Flask, request, send_from_directory
+from flask import Flask, send_from_directory
 
 from gbdashboard.constants.net import LOCAL_SERVER_IP, SERVER_PORT
-from gbdashboard.dashboard.dashboard_webpage_builder import build_dashboards
-from gbdashboard.tools.pi import set_led_state, set_exposure_state, set_auto_exposure_state
+from gbdashboard.tools.pi import route_pi
 
 app = Flask(__name__)
 
@@ -18,34 +16,7 @@ def send_js(path):
     return send_from_directory('scripts', path)
 
 
-@app.route('/pi')
-def pi():
-    return send_from_directory('html', 'pi.html')
-
-
-@app.route('/set_leds')
-def set_leds():
-    state = json.loads(request.args.get("state"))
-    set_led_state(state)
-    return ''
-
-
-@app.route('/set_exposure')
-def set_exposure():
-    raw = json.loads(request.args.get("raw"))
-    camera = json.loads(request.args.get("camera"))
-    set_exposure_state(raw, camera)
-    return ''
-
-
-@app.route('/set_auto_exposure')
-def set_auto_exposure():
-    raw = json.loads(request.args.get("raw"))
-    camera = json.loads(request.args.get("camera"))
-    set_auto_exposure_state(raw, camera)
-    return ''
-
+route_pi(app)
 
 if __name__ == '__main__':
-    build_dashboards(app)
     app.run(host=LOCAL_SERVER_IP, port=SERVER_PORT)

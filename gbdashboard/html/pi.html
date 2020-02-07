@@ -6,20 +6,6 @@
     <title>RPi</title>
 </head>
 <body>
-<script>
-    function getSelectedCamera(){
-        return parseInt(document.getElementById('camera').value);
-    }
-    function leds(state){
-        get('/set_leds', {state:state});
-    }
-    function exposure(state){
-        get('/set_exposure', {raw:(state?11:10), camera:getSelectedCamera()})
-    }
-    function autoExposure(state){
-        get('/set_auto_exposure', {raw:(state?3:1), camera:getSelectedCamera()})
-    }
-</script>
 <table>
     <tr>
         <th>
@@ -28,19 +14,53 @@
     </tr>
     <tr>
         <th>
-        Led Ring <input type="checkbox" onclick="leds(this.checked)">
+            Led Ring <input id="leds" type="checkbox" onclick="leds(this.checked)">
         </th>
     </tr>
     <tr>
         <th>
-            Exposure <input type="checkbox" onclick="exposure(this.checked)"><br>
+            Exposure <input id="exposure" type="checkbox" onclick="exposure(this.checked)"><br>
         </th>
     </tr>
     <tr>
         <th>
-            Auto Exposure <input type="checkbox" onclick="autoExposure(this.checked)"><br>
+            Auto Exposure <input id="auto_exposure" type="checkbox" onclick="autoExposure(this.checked)"><br>
+        </th>
+    </tr>
+    <tr>
+        <th>
+            Vision Master Debug Mode <input id="vision_master_debug" type="checkbox"
+                                            onclick="debugMode(this.checked)"><br>
+        </th>
+    </tr>
+    <tr>
+        <th>
+            <button id="vision_master_start" type="button"
+                    onclick="startVisionMaster(this, this.parentElement.children[1])">Start Vision Master
+            </button>
+            <button id="vision_master_stop" type="button"
+                    onclick="stopVisionMaster(this, this.parentElement.children[0])" disabled>Stop Vision Master
+            </button>
+        </th>
+    </tr>
+    <tr>
+        <th>
+            Algorithm: <select id="algorithms"
+                               onchange="setVisionAlgorithm(this.options[this.selectedIndex].value)"></select>
+        </th>
+    </tr>
+    <tr>
+        <th>
+            <button type="button" id="python_stream" onclick="startGBVisionStream(this)">Start Python Stream</button>
+        </th>
+    </tr>
+    <tr>
+        <th>
+            Set Threshold: <select id="thresholds"></select> <input type="text" id="threshold_code">
+            <button onclick="setThresholdValue()">Set!</button>
         </th>
     </tr>
 </table>
+<script src="/scripts/pi.js"></script>
 </body>
 </html>
