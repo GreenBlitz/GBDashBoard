@@ -20,7 +20,7 @@ function getUpdate(dashboardName){
 
                 var subtableDoc = document.getElementById(key);
                 if (subtable === null){
-                    return; // TODO
+                    forceRefresh();
                 }
 
                 var subtable = asJson[key];
@@ -31,7 +31,7 @@ function getUpdate(dashboardName){
                     var element = document.getElementById(id);
 
                     if (element === null){
-                        continue; // TODO
+                        forceRefresh();
                     }
 
                     element.children[1].firstChild.innerText = subtable[elemKey]
@@ -45,6 +45,10 @@ function getUpdate(dashboardName){
 
     setTimeout(getUpdate, UPDATE_TIMEOUT, dashboardName);
 
+}
+
+function forceRefresh(){
+    location.reload();
 }
 
 getUpdate(document.getElementById("tableName").innerText);
