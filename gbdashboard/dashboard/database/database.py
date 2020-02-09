@@ -1,13 +1,16 @@
 import os
 import json
 import sqlite3
+import time
+from gbdashboard.dashboard import dashboard_builder
 
 
 class Database:
 
     def __init__(self, session_id, table_list, db=None):
         if db is None:
-            self.database: sqlite3.Connection = sqlite3.Connection(Database.get_database_dir() + str(session_id) + ".db")
+            self.database: sqlite3.Connection = sqlite3.Connection(
+                Database.get_database_dir() + str(session_id) + ".db")
         else:
             self.database: sqlite3.Connection = db
         self.id = session_id
@@ -18,7 +21,7 @@ class Database:
     DATABASE_DIRECTORY = "/gbdashboard/db/"
     ADD_TABLE = """
         CREATE TABLE IF NOT EXISTS dashname (
-            param text PRIMARY KEY,
+            param text,
             time integer NOT NULL,
             value text
         );
@@ -26,6 +29,9 @@ class Database:
     ADD_VALUE = """
         INSERT into dashname(param, time, value)
         VALUES(?,?,?)
+    """
+    GET_VALUE = """
+        SELECT * FROM __1 WHERE param = \"__2\"
     """
 
     @staticmethod
@@ -35,6 +41,10 @@ class Database:
     @staticmethod
     def generate_value_query(dashboard):
         return Database.ADD_VALUE.replace("dashname", dashboard)
+
+    @staticmethod
+    def generate_get_query(dashboard, subtale, key):
+        return Database.GET_VALUE.replace("__1", dashboard).replace("__2", subtale + "->" + key)
 
     @staticmethod
     def get_database_dir():
@@ -62,12 +72,30 @@ class Database:
         except sqlite3.Error as e:
             print(e)
 
+    def get_parameter_timeline(self, table, subtable, key):
+        c = self.database.cursor()
+        try:
+            c.execute(Database.generate_get_query(table, subtable, key))
+        except sqlite3.Error as e:
+            print(e)
+            return []
+        return c.fetchall()
+
     def flush(self):
         self.database.commit()
 
     '''
     The data here is as in generate_dashboard
     '''
+
     def update_database(self, data):
-        pass
+        keys = data.keys()
+        name = data.get("__name")
+        data.pop("__name")
+        self.add_table(name)
+        for i in keys:
+            subkeys = data.get(i).keys()
+            for i2 in subkeys:
+                self.insert_value(name, i + "->" + i2, data.get(i).get(i2), int(time.time() * 1000))
+        data["__name"] = name
 
