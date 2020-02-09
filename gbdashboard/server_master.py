@@ -2,14 +2,15 @@ import json
 import time
 from threading import Thread
 
-from flask import Flask, send_from_directory
-from gbdashboard.constants.net import LOCAL_SERVER_IP, SERVER_PORT, DASHBOARDS
-from gbdashboard.dashboard.dashboard_webpage_builder import build_dashboards
-from gbdashboard.tools.pi import route_pi
-from gbdashboard.dashboard.dashboard_builder import generate_dashboard
 from gbdashboard.tools.generic import reroute
+from flask import Flask, send_from_directory
+
+from gbdashboard.constants.net import LOCAL_SERVER_IP, SERVER_PORT, RUN_DATABASE
+from gbdashboard.dashboard.dashboard_webpage_builder import build_dashboards
+from gbdashboard.dashboard.dashboard_builder import generate_dashboard
 from gbdashboard.dashboard.database import Database
 import gbdashboard.dashboard.dashboard_builder as db
+from gbdashboard.tools.pi import route_pi
 
 app = Flask(__name__)
 
@@ -51,15 +52,15 @@ def threaded_update_database():
     with open(Database.get_database_dir() + "config.json", "w") as f:
         json.dump(jsondata, f)
 
-    database = Database(int(Database.load_config().get("latest_id")), DASHBOARDS)
-    for i in DASHBOARDS:
+    database = Database(int(Database.load_config().get("latest_id")), db.get_all_network_tables())
+    for i in db.get_all_network_tables():
         database.update_database(db.generate_dashboard(i))
 
     sleep_time = Database.load_config().get("default_delay") / 1000.0
 
     while True:
         database.flush()
-        for dash in DASHBOARDS:
+        for dash in db.get_all_network_tables():
             database.update_database(generate_dashboard(dash))
         time.sleep(sleep_time)
 
@@ -67,5 +68,6 @@ def threaded_update_database():
 if __name__ == '__main__':
     route_pi(app)
     build_dashboards(app)
-    Thread(target=threaded_update_database, args=[]).start()
+    if not RUN_DATABASE:
+        Thread(target=threaded_update_database, args=[]).start()
     app.run(host=LOCAL_SERVER_IP, port=SERVER_PORT)

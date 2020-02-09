@@ -1,7 +1,7 @@
 import sqlite3
 
 import matplotlib.pyplot as plt
-from gbdashboard.constants.net import DASHBOARDS
+from gbdashboard.dashboard.dashboard_builder import get_all_network_tables
 from gbdashboard.dashboard.database import Database
 
 SESSION_ID = 2
@@ -11,7 +11,7 @@ PATH = f"./plotting_db/{SESSION_ID}.db"
 
 def plot_db(dashboard, subtable, value, start_time, end_time):
     conn = sqlite3.Connection(PATH)
-    database = Database(SESSION_ID, DASHBOARDS, db=conn)
+    database = Database(SESSION_ID, get_all_network_tables(), db=conn)
     data = database.get_parameter_timeline(table=dashboard, subtable=subtable, key=value)
     target_data = list(filter(lambda x: start_time <= x[1] <= end_time, data))
     target_data.sort(key=lambda x: x[1], reverse=False)
