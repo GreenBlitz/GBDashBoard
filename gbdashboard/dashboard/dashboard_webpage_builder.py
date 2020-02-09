@@ -6,8 +6,9 @@ def generate_webpage(dashboard):
 
 
 def build_dashboards(app):
+    @app.route('/board')
+    def board():
+        return builder.build_index()
 
     app.add_url_rule("/board/<dashboard>", "/board/", generate_webpage)
     app.add_url_rule("/board/<name>/update", "/board/update", builder.generate_dashboard)
-
-

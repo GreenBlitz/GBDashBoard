@@ -26,6 +26,27 @@ def init_network_tables():
         print("[DEBUG] Started network table server.")
 
 
+def get_all_network_tables():
+    init_network_tables()
+    return list(map(lambda x: x[1:], nt.NetworkTablesInstance.getDefault()._tables))
+
+
+def build_index():
+    with open("./gbdashboard/html/templates/dashboardIndex.html") as fp:
+        html_base = BeautifulSoup(fp)
+
+    data = html_base.find(id="tables")
+
+    for table_name in get_all_network_tables():
+        tag = html_base.new_tag('div')
+        a = html_base.new_tag('a', attrs={'href': f'/board/{table_name}'})
+        a.string = table_name
+        tag.append(a)
+        data.append(tag)
+
+    return str(html_base)
+
+
 def insert_value(html_base: BeautifulSoup, table_name, table_tag, name, value):
     data_tag = html_base.new_tag("tr", id=table_name + "->" + name)
 
