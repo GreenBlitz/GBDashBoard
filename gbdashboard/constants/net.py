@@ -3,3 +3,5 @@ ROBORIO_IP = '10.45.90.2'
 SERVER_PORT = 5800
 
 DASHBOARDS = ["SmartDashboard"]
+
+RUN_DATABASE = True

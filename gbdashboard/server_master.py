@@ -4,7 +4,7 @@ from threading import Thread
 
 from flask import Flask, request, send_from_directory
 
-from gbdashboard.constants.net import LOCAL_SERVER_IP, SERVER_PORT, DASHBOARDS
+from gbdashboard.constants.net import LOCAL_SERVER_IP, SERVER_PORT, DASHBOARDS, RUN_DATABASE
 from gbdashboard.dashboard.dashboard_webpage_builder import build_dashboards
 from gbdashboard.dashboard.dashboard_builder import generate_dashboard
 from gbdashboard.tools.generic import reroute
@@ -89,5 +89,6 @@ def threaded_update_database():
 
 if __name__ == '__main__':
     build_dashboards(app)
-    Thread(target=threaded_update_database, args=[]).start()
+    if not RUN_DATABASE:
+        Thread(target=threaded_update_database, args=[]).start()
     app.run(host=LOCAL_SERVER_IP, port=SERVER_PORT)

@@ -2,7 +2,6 @@ import os
 import json
 import sqlite3
 import time
-from gbdashboard.dashboard import dashboard_builder
 
 
 class Database:
@@ -89,6 +88,7 @@ class Database:
     '''
 
     def update_database(self, data):
+
         keys = data.keys()
         name = data.get("__name")
         data.pop("__name")
