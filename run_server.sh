@@ -1,1 +1,3 @@
-python3 -m gbdashboard.server_master
+source /home/pi/bash_config
+
+py -m gbdashboard.server_master

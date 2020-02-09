@@ -1,6 +1,8 @@
 flask
 gbrpi
 gbvision
+opencv-python
+opencv-contrib-python
 pynetworktables
 bs4
 matplotlib

@@ -2,15 +2,14 @@ import json
 import time
 from threading import Thread
 
-from flask import Flask, request, send_from_directory
+from flask import Flask, send_from_directory, Response
 
 from gbdashboard.constants.net import LOCAL_SERVER_IP, SERVER_PORT, DASHBOARDS, RUN_DATABASE
 from gbdashboard.dashboard.dashboard_webpage_builder import build_dashboards
 from gbdashboard.dashboard.dashboard_builder import generate_dashboard
-from gbdashboard.tools.generic import reroute
-from gbdashboard.tools.pi import set_led_state, set_exposure_state, set_auto_exposure_state
 from gbdashboard.dashboard.database import Database
 import gbdashboard.dashboard.dashboard_builder as db
+from gbdashboard.tools.pi import route_pi
 
 app = Flask(__name__)
 
@@ -25,44 +24,12 @@ def send_js(path):
     return send_from_directory('scripts', path)
 
 
-@app.route('/pi')
-def pi():
-    return send_from_directory('html', 'pi.html')
-
-
-@app.route('/set_leds')
-def set_leds():
-    state = json.loads(request.args.get("state"))
-    set_led_state(state)
-    return ''
-
-
-@app.route('/db/<path:path>')
-def send_db(path: str):
-    if path.endswith('.db'):
-        return send_from_directory('db', path)
-    return reroute(f"/db/{path}.db")
-
-
-@app.route('/db/current')
-def send_current_db():
-    return reroute(f"/db/{Database.load_config().get('latest_id')}.db")
-
-
-@app.route('/set_exposure')
-def set_exposure():
-    raw = json.loads(request.args.get("raw"))
-    camera = json.loads(request.args.get("camera"))
-    set_exposure_state(raw, camera)
-    return ''
-
-
-@app.route('/set_auto_exposure')
-def set_auto_exposure():
-    raw = json.loads(request.args.get("raw"))
-    camera = json.loads(request.args.get("camera"))
-    set_auto_exposure_state(raw, camera)
-    return ''
+@app.after_request
+def prevent_cache(response):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, public, max-age=0"
+    response.headers["Expires"] = 0
+    response.headers["Pragma"] = "no-cache"
+    return response
 
 
 def threaded_update_database():
@@ -88,6 +55,7 @@ def threaded_update_database():
 
 
 if __name__ == '__main__':
+    route_pi(app)
     build_dashboards(app)
     if not RUN_DATABASE:
         Thread(target=threaded_update_database, args=[]).start()
