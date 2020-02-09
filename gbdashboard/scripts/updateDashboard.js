@@ -7,6 +7,7 @@ function getUpdate(dashboardName){
     const http = new XMLHttpRequest();
     http.open("GET",  url, true);
     http.send();
+    var ref = false;
 
     http.onreadystatechange = (e) => {
         if (http.readyState === 4 && http.status === 200) {
@@ -21,6 +22,7 @@ function getUpdate(dashboardName){
                 var subtableDoc = document.getElementById(key);
                 if (subtableDoc === null){
                     forceRefresh();
+                    ref = true;
                     return;
                 }
 
@@ -33,6 +35,7 @@ function getUpdate(dashboardName){
 
                     if (element === null){
                         forceRefresh();
+                        ref = true;
                         return;
                     }
 
@@ -45,7 +48,9 @@ function getUpdate(dashboardName){
         }
     };
 
-    setTimeout(getUpdate, UPDATE_TIMEOUT, dashboardName);
+    if (!ref){
+        setTimeout(getUpdate, UPDATE_TIMEOUT, dashboardName);
+    }
 
 }
 

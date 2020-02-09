@@ -24,7 +24,6 @@ def hello_world():
 def send_js(path):
     return send_from_directory('scripts', path)
 
-
 @app.after_request
 def prevent_cache(response):
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, public, max-age=0"
