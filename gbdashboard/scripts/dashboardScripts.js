@@ -39,7 +39,10 @@ function getUpdate(dashboardName){
                         return;
                     }
 
-                    element.children[1].firstChild.innerText = subtable[elemKey]
+                    textBox = element.children[1].firstChild;
+                    if (!textBox.locked){
+                        textBox.value = subtable[elemKey]
+                    }
 
                 }
 
@@ -56,6 +59,20 @@ function getUpdate(dashboardName){
 
 function forceRefresh(){
     location.reload();
+}
+
+function sendData(subtableKeyPair, dashboardName){
+    textBox = document.getElementById(subtableKeyPair).children[1].firstChild;
+    value = textBox.value;
+    textBox.locked = false;
+    subtableKeyList = subtableKeyPair.split("->");
+    subtable = subtableKeyList[0];
+    key = subtableKeyList[1];
+
+    const url = "/board/" + dashboardName + "/senddata?subtable=" + subtable + "&key=" + key + "&value=" + value;
+    const http = new XMLHttpRequest();
+    http.open("GET",  url, true);
+    http.send();
 }
 
 setTimeout(getUpdate, 500, document.getElementById("tableName").innerText);

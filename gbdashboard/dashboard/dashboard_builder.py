@@ -4,6 +4,8 @@ import networktables as nt
 from bs4 import BeautifulSoup
 import time
 
+curr_dashboard = "SmartDashboard"
+
 from gbdashboard.constants.net import ROBORIO_IP
 
 NETWORK_TABLE_STARTED = False
@@ -48,13 +50,20 @@ def build_index():
 
 
 def insert_value(html_base: BeautifulSoup, table_name, table_tag, name, value):
-    data_tag = html_base.new_tag("tr", id=table_name + "->" + name)
+    global curr_dashboard
+
+    elem_id = table_name + "->" + name
+
+    data_tag = html_base.new_tag("tr", id=elem_id)
 
     data_name_tag = html_base.new_tag("th", style=CELL_STYLE)
     data_name_tag.string = name
 
     data_value_tag = html_base.new_tag("th", style=CELL_STYLE)
-    text_box_value_tag = html_base.new_tag("textarea", readonly="", style=TEXT_BOX_STYLE)
+    text_box_value_tag = html_base.new_tag("textarea",
+                                onfocus="document.getElementById(\"" + elem_id + "\").children[1].firstChild.locked = true",
+                                onblur="sendData(\"" + elem_id + "\", \"" + curr_dashboard + "\")",
+                                           style=TEXT_BOX_STYLE)
     text_box_value_tag.string = str(value)
     data_value_tag.append(text_box_value_tag)
 
@@ -91,6 +100,9 @@ def generate_subtable(html_base: BeautifulSoup, subtable_name, subtable_data):
 
 def generate_dashboard(name: str):
     init_network_tables()
+
+    global curr_dashboard
+    curr_dashboard = name
 
     table: nt.NetworkTable = nt.NetworkTables.getTable(name)
     subtables: List[str] = table.getSubTables()
@@ -165,5 +177,5 @@ def test_build_dashboard():
             "2": "bruh",
             "3": "moment"
         }}
-    #print(build_html_from_dashboard(data))
+    # print(build_html_from_dashboard(data))
     return data
