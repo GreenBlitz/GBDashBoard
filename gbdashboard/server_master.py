@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello_world():
-    return 'Hello, World!'
+    return send_from_directory('html', 'index.html')
 
 
 @app.route('/scripts/<path:path>')
