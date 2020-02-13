@@ -1,5 +1,6 @@
 import json
 import signal
+from typing import Optional
 
 import gbrpi
 import gbvision as gbv
@@ -25,7 +26,7 @@ all_thresholds = list(map(lambda x: x.split('=')[0].strip(), filter(lambda x: or
     'VISION_TARGET',
     'POWER_CELL']
 
-vision_master_process = None
+vision_master_process: Optional[subprocess.Popen] = None
 
 python_stream_running = False
 
@@ -58,12 +59,18 @@ def route_pi(app: Flask):
         open('/home/pi/vision/do_vision.sh', 'w').write(
             '#!/bin/bash\nsource /home/pi/bash_config\ncd /home/pi/vision\npy vision_master.py')
         os.chmod('/home/pi/vision/do_vision.sh', 0o0777)
-        vision_master_process = subprocess.Popen(['/home/pi/vision/do_vision.sh'], stdout=subprocess.PIPE)
+        vision_master_process = subprocess.Popen(['/home/pi/vision/do_vision.sh'], stdout=subprocess.PIPE,
+                                                 stderr=subprocess.PIPE)
 
     def close_vision_master_proc():
         global vision_master_process
         if vision_master_process is not None:
-            os.killpg(os.getpgid(vision_master_process.pid), signal.SIGINT)
+            vision_master_process.terminate()
+            lines = [x for x in subprocess.check_output(['ps', '-ef']).decode('ascii').splitlines() if
+                     'vision_master' in x]
+            for line in lines:
+                pid = int(line.split()[1])
+                os.kill(pid, signal.SIGINT)
             vision_master_process = None
 
     def change_vision_algorithm(algo):
