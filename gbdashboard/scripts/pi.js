@@ -85,3 +85,8 @@ repeatWaitResponse('/pi/get_current_algorithm', null, function(state){
 repeatWaitResponse('/pi/get_python_stream_state', null, function(state){
     document.getElementById('python_stream').disabled = JSON.parse(state);
 })
+function createTerminal(){
+        var term = new Terminal();
+        term.open(document.getElementById('terminal'));
+        term.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
+}
