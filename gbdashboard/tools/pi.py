@@ -70,7 +70,7 @@ def route_pi(app: Flask):
                      'vision_master' in x]
             for line in lines:
                 pid = int(line.split()[1])
-                os.kill(pid, signal.SIGINT)
+                os.kill(pid, signal.SIGTERM)
             vision_master_process = None
 
     def change_vision_algorithm(algo):
