@@ -63,7 +63,7 @@ def route_pi(app: Flask):
     def close_vision_master_proc():
         global vision_master_process
         if vision_master_process is not None:
-            os.killpg(os.getpgid(vision_master_process.pid), signal.SIGINT)
+            os.kill(vision_master_process.pid, signal.SIGINT)
             vision_master_process = None
 
     def change_vision_algorithm(algo):
