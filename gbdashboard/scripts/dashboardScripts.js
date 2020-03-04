@@ -1,5 +1,5 @@
 
-const UPDATE_TIMEOUT = 30;
+const UPDATE_TIMEOUT = 100;
 
 function getUpdate(dashboardName){
 

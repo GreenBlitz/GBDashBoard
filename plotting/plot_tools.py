@@ -4,34 +4,40 @@ import matplotlib.pyplot as plt
 from gbdashboard.dashboard.dashboard_builder import get_all_network_tables
 from gbdashboard.dashboard.database import Database
 
-SESSION_ID = 2
+SESSION_ID = 5
 
-PATH = f"./plotting_db/{SESSION_ID}.db"
+PATH = f"../gbdashboard/db/{SESSION_ID}.db"
 
 
-def plot_db(dashboard, subtable, value, start_time, end_time):
+def plot_db(dashboard, subtable, value, start_time=0, end_time=None):
     conn = sqlite3.Connection(PATH)
     database = Database(SESSION_ID, get_all_network_tables(), db=conn)
     data = database.get_parameter_timeline(table=dashboard, subtable=subtable, key=value)
-    target_data = list(filter(lambda x: start_time <= x[1] <= end_time, data))
+    if end_time is None:
+        target_data = list(filter(lambda x: start_time <= x[1], data))
+    else:
+        target_data = list(filter(lambda x: start_time <= x[1] <= end_time, data))
     target_data.sort(key=lambda x: x[1], reverse=False)
     time_values = []
     values = []
     for i in target_data:
-        time_values.append(i[1])
+        time_values.append(i[1] / 1000.0)
         values.append(i[2])
     time_zero = time_values[0]
     for i in range(len(time_values)):
         time_values[i] -= time_zero
-        values[i] = float(values[i])
-    plt.plot(time_values, values)
+        if values[i] in ["True", "False"]:
+            values[i] = 1.0 if values[i] == "True" else 0.0
+        else:
+            values[i] = float(values[i])
+    plt.plot(time_values, values, 'rx-')
     plt.ylabel(value)
     plt.xlabel("time")
     plt.show()
 
 
 def main():
-    plot_db("SmartDashboard", "parent", "Ang vel", 1574229233109, 1574229235036)
+    plot_db("SmartDashboard", "parent", "vision valid", 0, None)
 
 
 if __name__ == '__main__':
