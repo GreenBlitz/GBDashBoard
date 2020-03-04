@@ -11,3 +11,6 @@ dist/
 
 # virtual environment
 venv/
+
+*.db
+*.db-journal
