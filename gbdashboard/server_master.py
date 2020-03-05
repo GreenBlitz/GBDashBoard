@@ -75,7 +75,7 @@ def main():
 
     if RUN_DATABASE:
         print("Starting database...")
-        Thread(target=threaded_update_database, args=[]).start()
+        Thread(target=threaded_update_database, args=[], daemon=True).start()
     print("Starting server...")
     app.run(host=LOCAL_SERVER_IP, port=SERVER_PORT)
 

@@ -3,6 +3,8 @@ import json
 import sqlite3
 import time
 
+from gbdashboard.dashboard.dashboard_builder import generate_dashboard
+
 
 class Database:
 
@@ -15,35 +17,39 @@ class Database:
         self.id = session_id
         self.table_list = []
         for table in table_list:
-            self.add_table(table)
+            initial_data = generate_dashboard(table)
+            for subtable in initial_data:
+                if subtable == "__name":
+                    continue
+                for param in initial_data[subtable]:
+                    self.add_table(initial_data["__name"], subtable, param)
 
     DATABASE_DIRECTORY = "/gbdashboard/db/"
     ADD_TABLE = """
-        CREATE TABLE IF NOT EXISTS dashname (
-            param text,
-            time integer NOT NULL,
+        CREATE TABLE IF NOT EXISTS "table_name" (
+            time integer NOT NULL PRIMARY KEY,
             value text
         );
     """
     ADD_VALUE = """
-        INSERT into dashname(param, time, value)
-        VALUES(?,?,?)
+        INSERT into "dashname"(time, value)
+        VALUES(?,?)
     """
     GET_VALUE = """
-        SELECT * FROM __1 WHERE param = \"__2\"
+        SELECT * FROM "__1"
     """
 
     @staticmethod
-    def generate_dashboard_query(dashboard):
-        return Database.ADD_TABLE.replace("dashname", dashboard)
+    def generate_dashboard_query(table_name):
+        return Database.ADD_TABLE.replace("table_name", table_name)
 
     @staticmethod
-    def generate_value_query(dashboard):
-        return Database.ADD_VALUE.replace("dashname", dashboard)
+    def generate_value_query(table_name):
+        return Database.ADD_VALUE.replace("dashname", table_name)
 
     @staticmethod
     def generate_get_query(dashboard, subtale, key):
-        return Database.GET_VALUE.replace("__1", dashboard).replace("__2", subtale + "->" + key)
+        return Database.GET_VALUE.replace("__1", dashboard + "_" + subtale + "_" + key)
 
     @staticmethod
     def get_database_dir():
@@ -54,20 +60,21 @@ class Database:
         with open(Database.get_database_dir() + "config.json", "r") as f:
             return json.load(f)
 
-    def add_table(self, dashboard_name):
-        if dashboard_name in self.table_list:
+    def add_table(self, dashboard_name, subtable, param):
+        full_name = dashboard_name + "_" + subtable + "_" + param
+        if full_name in self.table_list:
             return
-        self.table_list.append(dashboard_name)
+        self.table_list.append(full_name)
         c = self.database.cursor()
         try:
-            c.execute(Database.generate_dashboard_query(dashboard_name))
+            c.execute(Database.generate_dashboard_query(full_name))
         except sqlite3.Error as e:
             print(e)
 
-    def insert_value(self, board, key, value, time):
+    def insert_value(self, board, subboard, key, value, time):
         c = self.database.cursor()
         try:
-            c.execute(Database.generate_value_query(board), (key, time, value))
+            c.execute(Database.generate_value_query(board + "_" + subboard + "_" + key), (time, value))
         except sqlite3.Error as e:
             print(e)
 
@@ -89,13 +96,11 @@ class Database:
 
     def update_database(self, data):
 
-        keys = data.keys()
-        name = data.get("__name")
-        data.pop("__name")
-        self.add_table(name)
-        for i in keys:
-            subkeys = data.get(i).keys()
-            for i2 in subkeys:
-                self.insert_value(name, i + "->" + i2, data.get(i).get(i2), int(time.time() * 1000))
-        data["__name"] = name
+        for subtable in data:
+            if subtable == "__name":
+                continue
+            for param in data[subtable]:
+                self.add_table(data["__name"], subtable, param)
+                self.insert_value(data["__name"], subtable, param,
+                                  str(data[subtable][param]), int(time.time()*1000))
 
