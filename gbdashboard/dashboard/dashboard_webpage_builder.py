@@ -36,5 +36,9 @@ def build_dashboards(app):
 
         return "Inseted " + str(value) + " to " + dashboard + " into subtable " + subtable + ". As number? " + str(is_num)
 
+    @app.route('/board/test')
+    def test():
+        return builder.build_html_from_dashboard(builder.test_build_dashboard())
+
     app.add_url_rule("/board/<dashboard>", "/board/", generate_webpage)
     app.add_url_rule("/board/<name>/update", "/board/update", builder.generate_dashboard)

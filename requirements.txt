@@ -6,4 +6,3 @@ opencv-contrib-python
 pynetworktables
 bs4
 matplotlib
-dash

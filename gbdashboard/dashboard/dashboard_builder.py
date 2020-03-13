@@ -68,7 +68,11 @@ def insert_value(html_base: BeautifulSoup, table_name, table_tag, name, value):
     data_value_tag.append(text_box_value_tag)
 
     option_tag = html_base.new_tag("th", style=CELL_STYLE)
-    option_tag.string = "temp"
+
+    hide_button = html_base.new_tag("button", type="button")
+    hide_button.string = "hide"
+
+    option_tag.append(hide_button)
 
     data_tag.append(data_name_tag)
     data_tag.append(data_value_tag)
@@ -179,3 +183,4 @@ def test_build_dashboard():
         }}
     # print(build_html_from_dashboard(data))
     return data
+

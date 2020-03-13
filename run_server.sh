@@ -1,3 +1,3 @@
 source /home/pi/bash_config
 
-py -m gbdashboard.server_master
+py -m gbdashboard.server_master %~1

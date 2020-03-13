@@ -3,7 +3,15 @@ import signal
 from typing import Optional
 
 import gbrpi
-import gbvision as gbv
+
+HAS_GBV = True
+try:
+    import gbvision as gbv
+except Exception as e:
+    print("Failed importing gbvision. Exception is:")
+    print(e)
+    HAS_GBV = False
+
 import subprocess
 import platform
 import os
@@ -79,6 +87,9 @@ def route_pi(app: Flask):
 
     def send_tcp_stream(port: int):
         global python_stream_running
+        if not HAS_GBV:
+            raise Exception("Gbvision unavalible")
+
         if not python_stream_running:
             python_stream_running = True
             camera = gbv.USBCamera(port)
