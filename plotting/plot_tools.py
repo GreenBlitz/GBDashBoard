@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from gbdashboard.dashboard.dashboard_builder import get_all_network_tables
 from gbdashboard.dashboard.database import Database
 
-SESSION_ID = 1
+SESSION_ID = 7
 
 PATH = f"../gbdashboard/db/{SESSION_ID}.db"
 
@@ -17,7 +17,7 @@ def plot_db(dashboard, subtable, value, start_time=0, end_time=None):
         target_data = list(filter(lambda x: start_time <= x[0], data))
     else:
         target_data = list(filter(lambda x: start_time <= x[0] <= end_time, data))
-    target_data.sort(key=lambda x: x[1], reverse=False)
+    target_data.sort(key=lambda x: x[0], reverse=False)
     time_values = []
     values = []
     for i in target_data:
@@ -37,7 +37,7 @@ def plot_db(dashboard, subtable, value, start_time=0, end_time=None):
 
 
 def main():
-    plot_db("Turret", "parent", "Angle from front deg", 0, None)
+    plot_db("uart", "parent", "RS232 Connection good")
 
 
 if __name__ == '__main__':

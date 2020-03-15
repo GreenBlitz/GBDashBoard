@@ -1,1 +1,1 @@
-py -m gbdashboard.server_master
+py -m gbdashboard.server_master %~1

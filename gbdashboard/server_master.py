@@ -5,6 +5,7 @@ from threading import Thread
 
 from gbdashboard.tools.generic import reroute
 from flask import Flask, send_from_directory
+import logging
 
 from gbdashboard.constants.net import LOCAL_SERVER_IP, SERVER_PORT, RUN_DATABASE, DEFAULT_TABLES
 from gbdashboard.dashboard.dashboard_webpage_builder import build_dashboards
@@ -67,13 +68,23 @@ def threaded_update_database():
 
 
 def main():
+
+    args = sys.argv
+
+    if len(args) != 2 or args[1] not in ["Y", "N", "y", "n"]:
+        print("Usage: server_master.py [RUN_DATABASE Y/N]")
+        return
+
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
+
     if is_on_rpi:
         print("Setting pi routes...")
         route_pi(app)
     print("Setting dashboard routes...")
     build_dashboards(app)
 
-    if RUN_DATABASE:
+    if RUN_DATABASE and args[1] in ["Y", "y"]:
         print("Starting database...")
         Thread(target=threaded_update_database, args=[], daemon=True).start()
     print("Starting server...")
