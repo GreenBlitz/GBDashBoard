@@ -1,10 +1,13 @@
 from typing import List, Dict
 
+import gbrpi
+import networktables
 import networktables as nt
 from bs4 import BeautifulSoup
 import time
 
 curr_dashboard = "SmartDashboard"
+previous = []
 
 from gbdashboard.constants.net import ROBORIO_IP
 
@@ -30,7 +33,13 @@ def init_network_tables():
 
 def get_all_network_tables():
     init_network_tables()
-    return list(map(lambda x: x[1:], nt.NetworkTablesInstance.getDefault()._tables))
+    general = nt.NetworkTablesInstance.getDefault().getTable(key='general')
+    general.getEntry("tables").forceSetStringArray(["vision"])
+    global previous
+    tables = general.getEntry("tables")._value  #.getStringArray(previous)
+    previous = tables
+    print(tables)
+    return ["vision"]
 
 
 def build_index():
