@@ -44,7 +44,7 @@ def get_all_network_tables():
 
 def build_index():
     with open("./gbdashboard/html/templates/dashboardIndex.html") as fp:
-        html_base = BeautifulSoup(fp)
+        html_base = BeautifulSoup(fp, features="html.parser")
 
     data = html_base.find(id="tables")
 
@@ -95,7 +95,7 @@ def generate_subtable(html_base: BeautifulSoup, subtable_name, subtable_data):
                             <th> <b>Variable Name</b> </th> \
                             <th> <b>Variable Value</b> </th> \
                             <th>  </th> \
-                        </tr>")
+                        </tr>", features="html.parser")
     title_tag.append(title)
     subtable_tag.append(title_tag)
 
@@ -143,7 +143,7 @@ def generate_dashboard(name: str):
 
 def build_html_from_dashboard(json_data: Dict):
     with open("./gbdashboard/html/templates/dashboardTemplate.html") as fp:
-        html_base = BeautifulSoup(fp)
+        html_base = BeautifulSoup(fp, features="html.parser")
 
     header = html_base.find(id="tableName")
     header.string = json_data["__name"]
